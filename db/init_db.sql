@@ -1,8 +1,4 @@
-/* Creación de la base de datos */
-DROP DATABASE IF EXISTS club_deportivo;
-
-CREATE DATABASE club_deportivo;
-
+/* La base de datos es creada automáticamente por Docker mediante MYSQL_DATABASE */
 USE club_deportivo;
 
 /* Creación de tablas */
