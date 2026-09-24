@@ -101,9 +101,6 @@ INSERT INTO reservas (
     precio_total
 )
 VALUES
-    -- Reserva finalizada de 2 horas en Fútbol 1 (Socio 1: Juan Pérez)
     (1, 1, '2026-03-01 18:00:00', '2026-03-01 20:00:00', 'finalizada', 1000000, 2000000),
-    -- Reserva confirmada de 1 hora en Tenis 1 (Socio 2: María López)
     (2, 3, '2026-03-25 10:00:00', '2026-03-25 11:00:00', 'confirmada', 800000, 800000),
-    -- Reserva cancelada de 1.5 horas en Pádel 1 (Socio 3: Pedro Gómez)
-    (3, 4, '2026-03-26 17:00:00', '2026-03-26 18:30:00', 'cancelada', 1500000, 2250000),
+    (3, 4, '2026-03-26 17:00:00', '2026-03-26 18:30:00', 'cancelada', 1500000, 2250000);

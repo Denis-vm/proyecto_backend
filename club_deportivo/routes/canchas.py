@@ -13,6 +13,52 @@ canchas_bp = Blueprint(
     __name__
 )
 
+#FUNCION PARA implementar HATEOAS
+def construir_enlaces_canchas(filtros, total):
+    limite = filtros["limite"]
+    offset = filtros["offset"]
+
+    ultimo_offset = ((total - 1) // limite) * limite if total > 0 else 0
+
+    def crear_url(nuevo_offset):
+        parametros = {
+            "_limit": limite,
+            "_offset": nuevo_offset
+        }
+
+        if filtros["id_deporte"] is not None:
+            parametros["id_deporte"] = filtros["id_deporte"]
+
+        if filtros["nombre"] is not None:
+            parametros["nombre"] = filtros["nombre"]
+
+        if filtros["techada"] is not None:
+            parametros["techada"] = str(
+                filtros["techada"]
+            ).lower()
+
+        if filtros["activa"] is not None:
+            parametros["activa"] = str(
+                filtros["activa"]
+            ).lower()
+
+        return f"{request.base_url}?{urlencode(parametros)}"
+
+    return {
+        "_first": {
+            "href": crear_url(0)
+        },
+        "_prev": {
+            "href": crear_url(max(0, offset - limite))
+        } if offset > 0 else None,
+        "_next": {
+            "href": crear_url(offset + limite)
+        } if offset + limite < total else None,
+        "_last": {
+            "href": crear_url(ultimo_offset)
+        }
+    }
+
 # GET / CANCHAS
 
 @canchas_bp.route("/canchas", methods=["GET"])
@@ -21,34 +67,71 @@ def obtener_canchas():
     try:
         filtros = validar_filtros_canchas(request.args)
     except ValueError as e:
-        return jsonify(e.args[0]),400
-    
-    canchas = listar_canchas(filtros)
-    if not canchas:
-        return "",204
+        return jsonify({
+            "errors": [
+                {
+                "code": "ERROR_VALIDACION",
+                "message": "Los parámetros de la solicitud son inválidos",
+                "level": "error",
+                "description": e.args[0]["error"]
+                }
+            ]
+        }), 400
 
-    return jsonify(canchas),200
+    try:
+        resultado = listar_canchas(filtros)
+    except Error:
+        return jsonify({
+            "errors": [
+                {
+                    "code": "ERROR_BASE_DATOS",
+                    "message": "Error interno",
+                    "level": "error",
+                    "description": "Ocurrió un error al acceder a la base de datos"
+                }
+            ]
+        }), 500
+
+    enlaces = construir_enlaces_canchas(filtros, resultado["total"])
+
+    return jsonify({
+        "canchas": resultado["canchas"],
+        "_links": enlaces
+    }), 200
 
 
 # GET / CANCHAS / ID
-
 @canchas_bp.route("/canchas/<int:id>", methods=["GET"])
 def obtener_cancha(id):
-    cancha = buscar_cancha(id)
+
+    try:
+        cancha = buscar_cancha(id)
+    except Error:
+        return jsonify({
+            "errors": [
+                {
+                    "code": "ERROR_BASE_DATOS",
+                    "message": "Error interno",
+                    "level": "error",
+                    "description": "Ocurrió un error al acceder a la base de datos"
+                }
+            ]
+        }), 500
 
     if cancha is None:
         return jsonify({
             "errors": [
                 {
-                "code": "CANCHA_NO_EXISTE",
-                "message": "La cancha no existe",
-                "level": "error",
-                "description": "No se encontró una cancha con el identificador indicado"
-            }
+                    "code": "CANCHA_NO_EXISTE",
+                    "message": "La cancha no existe",
+                    "level": "error",
+                    "description": "No se encontró una cancha con el identificador indicado"
+                }
             ]
         }), 404
 
     return jsonify(cancha), 200
+
 
 #FUNCION PARA implementar HATEOAS
 def construir_enlaces_disponibles(filtros, total):
@@ -75,10 +158,10 @@ def construir_enlaces_disponibles(filtros, total):
         return f"{request.base_url}?{urlencode(parametros)}"
 
     return {
-        "_first": crear_url(0),
-        "_prev": crear_url(max(0, offset - limite)) if offset > 0 else None,
-        "_next": crear_url(offset + limite) if offset + limite < total else None,
-        "_last": crear_url(ultimo_offset)
+        "_first": {"href": crear_url(0)},
+        "_prev": {"href": crear_url(max(0, offset - limite))} if offset > 0 else None,
+        "_next": {"href": crear_url(offset + limite)} if offset + limite < total else None,
+        "_last": {"href": crear_url(ultimo_offset)}
     }
 
 #GET CANCHAS DISPONIBLES
