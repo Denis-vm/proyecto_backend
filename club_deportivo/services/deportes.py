@@ -1,4 +1,4 @@
-from ..repositories.deportes import obtener_todos, obtener_por_id
+from ..repositories.deportes import obtener_todos
 
 
 def listar_deportes():

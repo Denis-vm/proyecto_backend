@@ -1,16 +1,15 @@
 from flask import Blueprint
-from ..services.deportes import listar_deportes as listar_deportes_service, buscar_deporte
+from ..services.deportes import listar_deportes
 
 deportes_bp = Blueprint(
     "deportes",
-    __name__,
-    url_prefix="/deportes"
+    __name__
 )
 
-""" TODOS LOS DEPORTES """
-@deportes_bp.get("")
-def listar_deportes():
-    deportes = listar_deportes_service()
+#TODOS LOS DEPORTES
+@deportes_bp.route("/deportes", methods=["GET"])
+def lista_deporte():
+    deportes = listar_deportes()
 
     if deportes is None:
         return{
