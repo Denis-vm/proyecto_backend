@@ -5,6 +5,7 @@ Sistema de gestión backend para el **Club Deportivo**, desarrollado en Python c
 ## 👥 Integrantes del Equipo
 
 - **Matias Soletta** - Padrón: `116388`
+- **Denis Vasquez** - Padrón: `116220`
 - **[Nombre del Integrante]** - Padrón: `[Número]`
 
 ## 📌 Versiones Utilizadas
