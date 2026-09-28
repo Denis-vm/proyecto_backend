@@ -95,7 +95,7 @@ La aplicación estará escuchando solicitudes en `http://localhost:5000`.
 
 ## 📬 Ejemplos de Solicitudes
 
-A continuación se detallan ejemplos representativos para interactuar con la API del Club Deportivo Encuentro mediante comandos `curl`.
+A continuación se detallan los ejemplos para consultar la API mediante comandos `curl`:
 
 ### 1. Listar deportes precargados
 Obtiene el listado de deportes fijos registrados en el sistema.
