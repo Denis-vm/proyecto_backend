@@ -95,9 +95,11 @@ La aplicación estará escuchando solicitudes en `http://localhost:5000`.
 
 ## 📬 Ejemplos de Solicitudes
 
-A continuación se detallan ejemplos de cómo consultar la API mediante comandos `curl`:
+A continuación se detallan ejemplos representativos para interactuar con la API del Club Deportivo Encuentro mediante comandos `curl`.
 
-### 1. Obtener lista de deportes
+### 1. Listar deportes precargados
+Obtiene el listado de deportes fijos registrados en el sistema.
+
 - **Método:** `GET`
 - **Endpoint:** `/deportes`
 
@@ -107,40 +109,100 @@ curl -X GET http://localhost:5000/deportes
 
 **Respuesta esperada (`200 OK`):**
 ```json
-[
-  {
-    "id": 1,
-    "nombre": "Fútbol"
-  },
-  {
-    "id": 2,
-    "nombre": "Tenis"
-  },
-  {
-    "id": 3,
-    "nombre": "Pádel"
-  }
-]
+{
+  "deportes": [
+    {
+      "id": 1,
+      "nombre": "Fútbol"
+    },
+    {
+      "id": 2,
+      "nombre": "Tenis"
+    },
+    {
+      "id": 3,
+      "nombre": "Pádel"
+    }
+  ]
+}
 ```
 
-### 2. Registrar un nuevo deporte
-- **Método:** `POST`
-- **Endpoint:** `/deportes`
-- **Header:** `Content-Type: application/json`
+### 2. Consultar canchas disponibles
+Filtra canchas activas que se encuentran libres en un intervalo de tiempo específico.
+
+- **Método:** `GET`
+- **Endpoint:** `/canchas/disponibles`
+- **Parámetros Query:** `fecha`, `hora_inicio`, `hora_fin`, `id_deporte` (opcional)
 
 ```bash
-curl -X POST http://localhost:5000/deportes \
+curl -X GET "http://localhost:5000/canchas/disponibles?fecha=2026-10-15&hora_inicio=18:00:00&hora_fin=20:00:00&id_deporte=1"
+```
+
+**Respuesta esperada (`200 OK`):**
+```json
+{
+  "canchas": [
+    {
+      "id": 1,
+      "nombre": "Cancha 1 - Fútbol 5",
+      "id_deporte": 1,
+      "precio_hora": 1000000,
+      "techada": false,
+      "activa": true
+    }
+  ],
+  "_links": {
+    "_first": { "href": "http://localhost:5000/canchas/disponibles?_offset=0&_limit=10" }
+  }
+}
+```
+
+### 3. Crear una reserva
+Registra una reserva para un socio y cancha específicos en estado `confirmada`.
+
+- **Método:** `POST`
+- **Endpoint:** `/reservas`
+
+```bash
+curl -X POST http://localhost:5000/reservas \
   -H "Content-Type: application/json" \
-  -d '{"nombre": "Básquet"}'
+  -d '{
+    "id_socio": 1,
+    "id_cancha": 1,
+    "fecha_hora_inicio": "2026-10-15T18:00:00.000000-03:00",
+    "fecha_hora_fin": "2026-10-15T20:00:00.000000-03:00"
+  }'
 ```
 
 **Respuesta esperada (`201 Created`):**
 ```json
 {
-  "id": 4,
-  "nombre": "Básquet"
+  "id": 1,
+  "id_socio": 1,
+  "id_cancha": 1,
+  "fecha_hora_inicio": "2026-10-15T18:00:00.000000-03:00",
+  "fecha_hora_fin": "2026-10-15T20:00:00.000000-03:00",
+  "estado": "confirmada",
+  "precio_hora": 1000000,
+  "precio_total": 2000000
 }
 ```
+
+### 4. Cancelar o cambiar estado de una reserva
+Actualiza el estado de una reserva respetando los flujos de negocio.
+
+- **Método:** `PUT`
+- **Endpoint:** `/reservas/{id}/estado`
+
+```bash
+curl -X PUT http://localhost:5000/reservas/1/estado \
+  -H "Content-Type: application/json" \
+  -d '{
+    "estado": "cancelada"
+  }'
+```
+
+**Respuesta esperada:** `204 No Content`
 
 ## 🛢️ Reinicio de la Base de Datos
 
